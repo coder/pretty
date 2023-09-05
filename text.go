@@ -140,6 +140,9 @@ type Style []Formatter
 
 // Format applies all formatters in the style to the text and
 // returns the modified text.
+//
+// When performance is a concern, use WriteTo instead of String
+// on the returned text.
 func (s Style) Format(t *Text) *Text {
 	for _, f := range s {
 		f.Format(t)

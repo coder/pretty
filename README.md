@@ -33,7 +33,16 @@ errorStyle := pretty.Style{
 
 ## Performance
 
-TODO: benchmarks
+```
+$ go test -bench=.
+goos: darwin
+goarch: arm64
+pkg: github.com/coder/pretty/bench
+BenchmarkPretty-10               5142177               232.6 ns/op        55.88 MB/s         272 B/op          8 allocs/op
+BenchmarkLipgloss-10              280276              4157 ns/op           3.13 MB/s         896 B/op         72 allocs/op
+PASS
+ok      github.com/coder/pretty/bench   2.921s
+```
 
 pretty remains fast even through dozens of transformations due to its linked-list
 based intermediate representation of text. In general, operations scale with
