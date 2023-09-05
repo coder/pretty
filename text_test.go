@@ -3,6 +3,7 @@ package pretty
 import (
 	"testing"
 
+	"github.com/muesli/termenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -31,10 +32,48 @@ func TestText(t *testing.T) {
 		txt := String("")
 		txt = txt.Append("a")
 		txt = txt.Append("b")
-		require.Equal(t, "ab", txt.String())
+		requireText(t, txt, "ab")
 		txt = txt.Prepend("c")
-		require.Equal(t, "cab", txt.String())
+		requireText(t, txt, "cab")
 		txt = txt.Prepend("d")
-		require.Equal(t, "dcab", txt.String())
+		requireText(t, txt, "dcab")
 	})
+	t.Run("InsertEnd", func(t *testing.T) {
+		txt := String("")
+		txt = txt.Append("11")
+		requireText(t, txt, "11")
+		txt.Insert(("ef"))
+		requireText(t, txt, "ef11")
+	})
+	t.Run("SplitEnd", func(t *testing.T) {
+		txt := String("11")
+		txt.Split(1)
+		requireText(t, txt, "11")
+	})
+
+	t.Run("SplitMiddle", func(t *testing.T) {
+		txt := String("123456")
+		txt.Append("789")
+		txt.Head().Split(3)
+		require.Equal(t, "123", txt.Head().S)
+		requireText(t, txt, "123456789")
+	})
+}
+
+func TestFgColor(t *testing.T) {
+	txt := String("disgusting red on green")
+	FgColor(termenv.RGBColor("#ff0000")).Format(txt)
+	BgColor(termenv.RGBColor("#00ff00")).Format(txt)
+	t.Logf("txt: %v", txt.debugString())
+	t.Logf("txt: %s", txt)
+}
+
+func TestStyle(t *testing.T) {
+	errorStyle := Style{
+		FgColor(termenv.RGBColor("#ff0000")),
+		BgColor(termenv.RGBColor("#000000")),
+		WrapCSI(termenv.BoldSeq),
+	}
+
+	t.Logf("%s", errorStyle.Sprint("SOME ERROR"))
 }
