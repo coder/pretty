@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"unicode"
 
 	"github.com/muesli/termenv"
 )
@@ -32,9 +33,14 @@ func (t *Text) Tail() *Text {
 }
 
 // Split splits the current text into two parts at the given index.
+// It returns the new node.
 func (t *Text) Split(n int) *Text {
 	if n > len(t.S) {
-		panic("split index out of bounds")
+		panic(fmt.Sprintf("split index %d > len(t.S) (%v) ", n, len(t.S)))
+	}
+
+	if n <= 0 {
+		panic("split index must be > 0")
 	}
 
 	if len(t.S) == n || len(t.S) == 0 {
@@ -42,25 +48,27 @@ func (t *Text) Split(n int) *Text {
 	}
 
 	// Split the string.
-	right := t.S[n:]
+	nextStr := t.S[n:]
 	t.S = t.S[:n]
 
 	if t.Next == nil {
-		t.Next = &Text{S: right, Prev: t}
+		t.Next = &Text{S: nextStr, Prev: t}
 		return t.Next
 	}
-	t.Next.Insert(right)
+	t.Next.Insert(nextStr)
 	return t.Next
 }
 
 // Insert inserts the given text before the current text.
-func (t *Text) Insert(s string) {
+// It returns the new node.
+func (t *Text) Insert(s string) *Text {
 	tt := &Text{S: s}
 	oldPrev := t.Prev
 	oldPrev.Next = tt
 	tt.Prev = oldPrev
 	tt.Next = t
 	t.Prev = tt
+	return tt
 }
 
 func (t *Text) debugString() string {
@@ -213,5 +221,45 @@ func Wrap(prefix, suffix string) Formatter {
 	return formatterFunc(func(t *Text) {
 		t.Prepend(prefix)
 		t.Append(suffix)
+	})
+}
+
+// LineWrap wraps the text at the given width.
+// It breaks lines at word boundaries, trailing whitespace is ignored.
+func LineWrap(width int) Formatter {
+	return formatterFunc(func(t *Text) {
+		var col int
+
+		for at := t.Head(); at != nil; at = at.Next {
+			nlAt := strings.IndexByte(at.S, '\n')
+			if nlAt < 0 {
+				nlAt = len(at.S)
+			}
+			col += nlAt
+
+			overflow := (width - col) * -1
+			if overflow <= 0 {
+				continue
+			}
+
+			// Find the best place to break the line.
+			var spaceAt int
+			for {
+				s := strings.IndexFunc(at.S[spaceAt:nlAt], unicode.IsSpace)
+				println("s", s, "spaceAt", spaceAt, "nlAt", nlAt, "overflow", overflow)
+				spaceAt += s + 1
+				if s < 0 || spaceAt > overflow || spaceAt > width {
+					break
+				}
+			}
+
+			if spaceAt > 0 {
+				next := at.Split(spaceAt)
+				at.S = strings.TrimRight(at.S, " \t")
+				next.S = strings.TrimLeft(next.S, " \t")
+				next.Insert("\n")
+				col = 0
+			}
+		}
 	})
 }

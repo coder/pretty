@@ -68,6 +68,47 @@ func TestFgColor(t *testing.T) {
 	t.Logf("txt: %s", txt)
 }
 
+func TestLineWrap(t *testing.T) {
+	t.Parallel()
+
+	t.Run("None", func(t *testing.T) {
+		txt := String(
+			"The crazy fox jumped",
+		)
+
+		LineWrap(100).Format(txt)
+
+		requireText(t, txt, "The crazy fox jumped")
+	})
+	t.Run("Basic", func(t *testing.T) {
+		txt := String(
+			"The crazy fox jumped",
+		)
+
+		LineWrap(10).Format(txt)
+
+		requireText(t, txt, "The crazy\nfox jumped")
+	})
+	t.Run("WordBoundary", func(t *testing.T) {
+		txt := String(
+			"The crazy_fox_jumped",
+		)
+
+		LineWrap(10).Format(txt)
+
+		requireText(t, txt, "The\ncrazy_fox_jumped")
+	})
+	t.Run("MultiLine", func(t *testing.T) {
+		txt := String(
+			"aabb cc dd ee ff",
+		)
+
+		LineWrap(4).Format(txt)
+
+		requireText(t, txt, "aabb\ncc\ndd\nee\nff")
+	})
+}
+
 func TestStyle(t *testing.T) {
 	errorStyle := Style{
 		FgColor(termenv.RGBColor("#ff0000")),
