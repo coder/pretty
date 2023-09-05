@@ -1,10 +1,9 @@
 # pretty
 
-`pretty` is a high performance Terminal pretty printer for Go. We created it
-due to the significant performance issues encountered with `lipgloss`, which
-seemed impossible to fix without a complete rewrite.
+`pretty` is a performant Terminal pretty printer for Go. We built it after
+using lipgloss and experiencing significant performance issues.
 
-It is relatively low-level, meant to be used in tandem with [termenv](https://pkg.go.dev/github.com/muesli/termenv).
+`pretty` doesn't implement escape sequences, and should be used alongside [termenv](https://pkg.go.dev/github.com/muesli/termenv).
 
 
 ## Basic Usage
@@ -31,3 +30,12 @@ errorStyle := pretty.Style{
         pretty.WrapCSI(termenv.BoldSeq),
 }
 ```
+
+## Performance
+
+TODO: benchmarks
+
+pretty remains fast even through dozens of transformations due to its linked-list
+based intermediate representation of text. In general, operations scale with
+the number of links rather than the length of the text. So, making a giant
+wall of help text green is similarly fast to making a single word green.
