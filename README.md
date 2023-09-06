@@ -1,4 +1,6 @@
 # pretty
+[![Go Reference](https://pkg.go.dev/badge/github.com/coder/pretty.svg)](https://pkg.go.dev/github.com/coder/pretty)
+
 
 `pretty` is a performant Terminal pretty printer for Go. We built it after
 using lipgloss and experiencing significant performance issues.
