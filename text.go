@@ -191,7 +191,7 @@ func (f formatterFunc) Format(t *Text) {
 //	FgColor(termenv.ANSIColor(31))
 func FgColor(c termenv.Color) Formatter {
 	seq := c.Sequence(false)
-	return WrapCSI(seq)
+	return CSI(seq)
 }
 
 // BgColor returns a formatter that sets the background color.
@@ -202,16 +202,16 @@ func FgColor(c termenv.Color) Formatter {
 //	BgColor(termenv.ANSIColor(31))
 func BgColor(c termenv.Color) Formatter {
 	seq := c.Sequence(true)
-	return WrapCSI(seq)
+	return CSI(seq)
 }
 
-// WrapCSI wraps the text in the given CSI (Control Sequence Introducer) sequence.
+// CSI wraps the text in the given CSI (Control Sequence Introducer) sequence.
 // Example:
 //
-//	WrapCSI(termenv.BoldSeq)
-//	WrapCSI(termenv.UnderlineSeq)
-//	WrapCSI(termenv.ItalicSeq)
-func WrapCSI(seq string) Formatter {
+//	CSI(termenv.BoldSeq)
+//	CSI(termenv.UnderlineSeq)
+//	CSI(termenv.ItalicSeq)
+func CSI(seq string) Formatter {
 	return Wrap(termenv.CSI+seq+"m", termenv.CSI+termenv.ResetSeq+"m")
 }
 
@@ -222,6 +222,21 @@ func Wrap(prefix, suffix string) Formatter {
 		t.Prepend(prefix)
 		t.Append(suffix)
 	})
+}
+
+// Bold returns a formatter that makes the text bold.
+func Bold() Formatter {
+	return CSI(termenv.BoldSeq)
+}
+
+// Italic returns a formatter that makes the text italic.
+func Italic() Formatter {
+	return CSI(termenv.ItalicSeq)
+}
+
+// Underline returns a formatter that underlines the text.
+func Underline() Formatter {
+	return CSI(termenv.UnderlineSeq)
 }
 
 // LineWrap wraps the text at the given width.

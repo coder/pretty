@@ -48,5 +48,5 @@ ok      github.com/coder/pretty/bench   2.921s
 
 pretty remains fast even through dozens of transformations due to its linked-list
 based intermediate representation of text. In general, operations scale with
-the number of links rather than the length of the text. So, making a giant
-wall of help text green is similarly fast to making a single word green.
+the number of links rather than the length of the text. For example, coloring
+a 1000 character string green is just as fast as wrapping a 1 character string.

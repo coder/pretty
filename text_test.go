@@ -128,7 +128,7 @@ func TestStyle(t *testing.T) {
 	errorStyle := Style{
 		FgColor(termenv.RGBColor("#ff0000")),
 		BgColor(termenv.RGBColor("#000000")),
-		WrapCSI(termenv.BoldSeq),
+		CSI(termenv.BoldSeq),
 	}
 
 	t.Logf("%s", errorStyle.Sprint("SOME ERROR"))
