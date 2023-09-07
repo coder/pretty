@@ -158,7 +158,9 @@ func (s Style) Format(t *Text) {
 
 // With returns a new style with the given formatters appended.
 func (s Style) With(fs ...Formatter) Style {
-	return append(s, fs...)
+	// Force a copy of the slice to avoid multiple calls to With
+	// interfering with each other.
+	return append(s[:len(s):len(s)], fs...)
 }
 
 type formatterFunc func(*Text)
