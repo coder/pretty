@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"unicode"
-
-	"github.com/muesli/termenv"
 )
 
 // Text is a linked-list structure that represents an in-progress text string.
@@ -143,7 +140,9 @@ type Formatter interface {
 	Format(*Text)
 }
 
-// Style is a list of formatters, which are applied in order.
+var _ Formatter = Style(nil)
+
+// Style is a special formatter that applies multiple formatters to a text.
 type Style []Formatter
 
 // Format applies all formatters in the style to the text and
@@ -151,30 +150,15 @@ type Style []Formatter
 //
 // When performance is a concern, use WriteTo instead of String
 // on the returned text.
-func (s Style) Format(t *Text) *Text {
+func (s Style) Format(t *Text) {
 	for _, f := range s {
 		f.Format(t)
 	}
-	return t
 }
 
 // With returns a new style with the given formatters appended.
 func (s Style) With(fs ...Formatter) Style {
 	return append(s, fs...)
-}
-
-// Sprintf formats the given string with the style.
-func (s Style) Sprintf(format string, args ...interface{}) string {
-	return s.Format(String(fmt.Sprintf(format, args...))).String()
-}
-
-func (s Style) Sprint(args ...interface{}) string {
-	return s.Format(String(fmt.Sprint(args...))).String()
-}
-
-func (s Style) Printf(format string, args ...interface{}) {
-	str := s.Format(String(fmt.Sprintf(format, args...))).String()
-	fmt.Print(str)
 }
 
 type formatterFunc func(*Text)
@@ -183,100 +167,30 @@ func (f formatterFunc) Format(t *Text) {
 	f(t)
 }
 
-// FgColor returns a formatter that sets the foreground color.
-// Example:
-//
-//	FgColor(termenv.RGBColor("#ff0000"))
-//	FgColor(termenv.ANSI256Color(196))
-//	FgColor(termenv.ANSIColor(31))
-func FgColor(c termenv.Color) Formatter {
-	seq := c.Sequence(false)
-	return CSI(seq)
+// Printf formats the given string with the formatter and prints it to stdout.
+func Printf(f Formatter, format string, args ...interface{}) {
+	txt := String(fmt.Sprintf(format, args...))
+	f.Format(txt)
+	fmt.Print(txt.String())
 }
 
-// BgColor returns a formatter that sets the background color.
-// Example:
-//
-//	BgColor(termenv.RGBColor("#ff0000"))
-//	BgColor(termenv.ANSI256Color(196))
-//	BgColor(termenv.ANSIColor(31))
-func BgColor(c termenv.Color) Formatter {
-	seq := c.Sequence(true)
-	return CSI(seq)
+// Sprintf formats the given string with the formatter.
+func Sprintf(f Formatter, format string, args ...interface{}) string {
+	txt := String(fmt.Sprintf(format, args...))
+	f.Format(txt)
+	return txt.String()
 }
 
-// CSI wraps the text in the given CSI (Control Sequence Introducer) sequence.
-// Example:
-//
-//	CSI(termenv.BoldSeq)
-//	CSI(termenv.UnderlineSeq)
-//	CSI(termenv.ItalicSeq)
-func CSI(seq string) Formatter {
-	return Wrap(termenv.CSI+seq+"m", termenv.CSI+termenv.ResetSeq+"m")
+// Sprint formats the given string with the formatter.
+func Sprint(f Formatter, args ...interface{}) string {
+	txt := String(fmt.Sprint(args...))
+	f.Format(txt)
+	return txt.String()
 }
 
-// Bold returns a formatter that makes the text bold.
-func Bold() Formatter {
-	return CSI(termenv.BoldSeq)
-}
-
-// Italic returns a formatter that makes the text italic.
-func Italic() Formatter {
-	return CSI(termenv.ItalicSeq)
-}
-
-// Underline returns a formatter that underlines the text.
-func Underline() Formatter {
-	return CSI(termenv.UnderlineSeq)
-}
-
-// Wrap wraps the text in the given prefix and suffix.
-// It is useful for wrapping text in ANSI sequences.
-func Wrap(prefix, suffix string) Formatter {
-	return formatterFunc(func(t *Text) {
-		t.Prepend(prefix)
-		t.Append(suffix)
-	})
-}
-
-// XPad pads the text on the left and right.
-func XPad(left, right int) Formatter {
-	return formatterFunc(func(t *Text) {
-		t.Prepend(strings.Repeat(" ", left))
-		t.Append(strings.Repeat(" ", right))
-	})
-}
-
-// LineWrap wraps the text at the given width.
-// It breaks lines at word boundaries when possible. It will never break up
-// a word so that URLs and other long strings present correctly.
-func LineWrap(width int) Formatter {
-	return formatterFunc(func(t *Text) {
-		var col int
-
-		for at := t.Head(); at != nil; at = at.Next {
-			nlAt := strings.IndexByte(at.S, '\n')
-			if nlAt < 0 {
-				nlAt = len(at.S)
-			}
-			col += nlAt
-
-			overflow := (width - col) * -1
-			if overflow <= 0 {
-				continue
-			}
-
-			spaceAt := strings.LastIndexFunc(at.S[:nlAt-overflow+1], unicode.IsSpace)
-			if spaceAt < 0 {
-				// Never break up a word.
-				continue
-			}
-
-			next := at.Split(spaceAt)
-			at.S = strings.TrimRight(at.S, " \t")
-			next.S = strings.TrimLeft(next.S, " \t")
-			next.Insert("\n")
-			col = 0
-		}
-	})
+// Fprintf formats the given string with the formatter and writes it to the
+func Fprintf(w io.Writer, f Formatter, format string, args ...interface{}) {
+	txt := String(fmt.Sprintf(format, args...))
+	f.Format(txt)
+	txt.WriteTo(w)
 }

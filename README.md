@@ -5,7 +5,7 @@
 `pretty` is a performant Terminal pretty printer for Go. We built it after
 using lipgloss and experiencing significant performance issues.
 
-`pretty` doesn't implement escape sequences, and should be used alongside [termenv](https://pkg.go.dev/github.com/muesli/termenv).
+`pretty` doesn't implement escape sequences and should be used alongside [termenv](https://pkg.go.dev/github.com/muesli/termenv).
 
 
 ## Basic Usage
