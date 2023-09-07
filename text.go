@@ -113,17 +113,39 @@ func (t *Text) Len() int {
 	}
 }
 
-// Append appends a string to the end of the text and returns the new tail.
-func (t *Text) Append(s string) *Text {
+// Append appends strings to the end of the text
+// in order.
+func (t *Text) Append(ss ...string) *Text {
+	for _, s := range ss {
+		t = t.appendOne(s)
+	}
+	return t
+}
+
+// appendOne appends a string to the end of the text and returns the new tail.
+func (t *Text) appendOne(s string) *Text {
 	oldTail := t.Tail()
 	newTail := &Text{S: s, Prev: oldTail}
 	oldTail.Next = newTail
 	return newTail
 }
 
-// Prepend prepends a string to the beginning of the text and returns the new
-// head.
-func (t *Text) Prepend(s string) *Text {
+// Prepend prepends strings to the beginning of the text
+// in order.
+// Example:
+//
+//	txt := String("c")
+//	txt = txt.Prepend("a", "b")
+//	fmt.Println(txt.String())
+//	// Output: abc
+func (t *Text) Prepend(ss ...string) *Text {
+	for i := len(ss) - 1; i >= 0; i-- {
+		t = t.prependOne(ss[i])
+	}
+	return t
+}
+
+func (t *Text) prependOne(s string) *Text {
 	oldHead := t.Head()
 	newHead := &Text{S: s, Next: oldHead}
 	oldHead.Prev = newHead

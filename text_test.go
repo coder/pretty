@@ -37,6 +37,16 @@ func TestText(t *testing.T) {
 		txt = txt.Prepend("d")
 		requireText(t, txt, "dcab")
 	})
+	t.Run("MultiPrepend", func(t *testing.T) {
+		txt := String("3")
+		txt = txt.Prepend("1", "2")
+		requireText(t, txt, "123")
+	})
+	t.Run("MultiAppend", func(t *testing.T) {
+		txt := String("1")
+		txt = txt.Append("2", "3")
+		requireText(t, txt, "123")
+	})
 	t.Run("InsertEnd", func(t *testing.T) {
 		txt := String("")
 		txt = txt.Append("11")
