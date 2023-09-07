@@ -104,3 +104,6 @@ func LineWrap(width int) Formatter {
 		}
 	})
 }
+
+// Nop is a no-op formatter.
+var Nop Formatter = formatterFunc(func(t *Text) {})

@@ -50,3 +50,6 @@ pretty remains fast even through dozens of transformations due to its linked-lis
 based intermediate representation of text. In general, operations scale with
 the number of links rather than the length of the text. For example, coloring
 a 1000 character string green is just as fast as wrapping a 1 character string.
+
+Eventually we could reap even more gains by replacing the linked-list with a
+rope.
