@@ -215,15 +215,6 @@ func CSI(seq string) Formatter {
 	return Wrap(termenv.CSI+seq+"m", termenv.CSI+termenv.ResetSeq+"m")
 }
 
-// Wrap wraps the text in the given prefix and suffix.
-// It is useful for wrapping text in ANSI sequences.
-func Wrap(prefix, suffix string) Formatter {
-	return formatterFunc(func(t *Text) {
-		t.Prepend(prefix)
-		t.Append(suffix)
-	})
-}
-
 // Bold returns a formatter that makes the text bold.
 func Bold() Formatter {
 	return CSI(termenv.BoldSeq)
@@ -237,6 +228,23 @@ func Italic() Formatter {
 // Underline returns a formatter that underlines the text.
 func Underline() Formatter {
 	return CSI(termenv.UnderlineSeq)
+}
+
+// Wrap wraps the text in the given prefix and suffix.
+// It is useful for wrapping text in ANSI sequences.
+func Wrap(prefix, suffix string) Formatter {
+	return formatterFunc(func(t *Text) {
+		t.Prepend(prefix)
+		t.Append(suffix)
+	})
+}
+
+// XPad pads the text on the left and right.
+func XPad(left, right int) Formatter {
+	return formatterFunc(func(t *Text) {
+		t.Prepend(strings.Repeat(" ", left))
+		t.Append(strings.Repeat(" ", right))
+	})
 }
 
 // LineWrap wraps the text at the given width.

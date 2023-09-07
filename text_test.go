@@ -124,6 +124,12 @@ func TestLineWrap(t *testing.T) {
 	}
 }
 
+func TestXPad(t *testing.T) {
+	txt := String("a")
+	XPad(1, 2).Format(txt)
+	requireText(t, txt, " a  ")
+}
+
 func TestStyle(t *testing.T) {
 	errorStyle := Style{
 		FgColor(termenv.RGBColor("#ff0000")),
