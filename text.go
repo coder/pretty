@@ -189,8 +189,17 @@ func Sprint(f Formatter, args ...interface{}) string {
 }
 
 // Fprintf formats the given string with the formatter and writes it to the
+// given writer.
 func Fprintf(w io.Writer, f Formatter, format string, args ...interface{}) {
 	txt := String(fmt.Sprintf(format, args...))
+	f.Format(txt)
+	txt.WriteTo(w)
+}
+
+// Fprint formats the given string with the formatter and writes it to the
+// given writer.
+func Fprint(w io.Writer, f Formatter, args ...interface{}) {
+	txt := String(fmt.Sprint(args...))
 	f.Format(txt)
 	txt.WriteTo(w)
 }
