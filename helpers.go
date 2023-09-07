@@ -36,6 +36,9 @@ func BgColor(c termenv.Color) Formatter {
 //	CSI(termenv.UnderlineSeq)
 //	CSI(termenv.ItalicSeq)
 func CSI(seq string) Formatter {
+	if seq == "" {
+		return Nop
+	}
 	return Wrap(termenv.CSI+seq+"m", termenv.CSI+termenv.ResetSeq+"m")
 }
 
