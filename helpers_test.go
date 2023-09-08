@@ -85,3 +85,21 @@ func TestStyle(t *testing.T) {
 
 	t.Logf("%s", Sprint(errorStyle, "SOME ERROR"))
 }
+
+func TestIndent(t *testing.T) {
+	t.Run("Oneline", func(t *testing.T) {
+		txt := String("a")
+		Indent(2).Format(txt)
+		requireText(t, txt, "  a")
+	})
+	t.Run("Multiline", func(t *testing.T) {
+		txt := String("a\nb")
+		Indent(2).Format(txt)
+		requireText(t, txt, "  a\n  b")
+	})
+	t.Run("TrailingNewline", func(t *testing.T) {
+		txt := String("a\nb\n")
+		Indent(2).Format(txt)
+		requireText(t, txt, "  a\n  b\n")
+	})
+}

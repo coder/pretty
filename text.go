@@ -71,7 +71,9 @@ func (t *Text) Split(n int) *Text {
 func (t *Text) Insert(s string) *Text {
 	tt := &Text{S: s}
 	oldPrev := t.Prev
-	oldPrev.Next = tt
+	if oldPrev != nil {
+		oldPrev.Next = tt
+	}
 	tt.Prev = oldPrev
 	tt.Next = t
 	t.Prev = tt
