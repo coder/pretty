@@ -108,33 +108,5 @@ func LineWrap(width int) Formatter {
 	})
 }
 
-// Indent returns a formatter that indents the text n spaces on each line.
-func Indent(n int) Formatter {
-	space := strings.Repeat(" ", n)
-	return formatterFunc(func(t *Text) {
-		first := t.Head()
-		first.Insert(space)
-
-	outer:
-		for at := first; at != nil; at = at.Next {
-			// IndexByte is faster than iterating over the string
-			// since it can use SIMD.
-			for {
-				match := strings.IndexByte(at.S, '\n')
-				if match < 0 {
-					continue outer
-				}
-
-				// At final newline.
-				if match == len(at.S)-1 && at.Next != nil {
-					return
-				}
-
-				t.Split(match + 1).Insert(space)
-			}
-		}
-	})
-}
-
 // Nop is a no-op formatter.
 var Nop Formatter = formatterFunc(func(t *Text) {})
