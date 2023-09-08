@@ -18,6 +18,10 @@ func requireText(t *testing.T, txt *Text, s string) {
 }
 
 func TestText(t *testing.T) {
+	t.Run("String", func(t *testing.T) {
+		txt := String("a", "b", "c")
+		requireText(t, txt, "abc")
+	})
 	t.Run("Len", func(t *testing.T) {
 		txt := String("")
 		requireText(t, txt, "")
@@ -66,5 +70,10 @@ func TestText(t *testing.T) {
 		txt.Head().Split(3)
 		require.Equal(t, "123", txt.Head().S)
 		requireText(t, txt, "123456789")
+	})
+
+	t.Run("Bytes", func(t *testing.T) {
+		txt := String("abc")
+		require.Equal(t, []byte("abc"), txt.Bytes(nil))
 	})
 }
